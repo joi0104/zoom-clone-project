@@ -14,13 +14,18 @@ app.get("/*", (req, res) => res.redirect("/"));
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
+const sockets = [];
+
 wss.on("connection", (socket) => {
+  sockets.push(socket);
   console.log("Connected to Browser");
   socket.on("close", () => {
     console.log("Disconnected to Browser");
   });
   socket.on("message", (message) => {
-    console.log(message.toString("utf8"));
+    sockets.forEach((socketItem) => {
+      socketItem.send(message.toString("utf8"));
+    });
   });
   socket.send("hello from the server");
 });
